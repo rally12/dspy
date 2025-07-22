@@ -166,7 +166,7 @@ def get_dspy_source_code(module):
             iterable = [getattr(module, attribute)]
 
         for item in iterable:
-            if item in completed_set:
+            if not is_hashable(item) or item in completed_set:
                 continue
             if isinstance(item, Parameter):
                 if hasattr(item, "signature") and item.signature is not None and item.signature.__pydantic_parent_namespace__["signature_name"] + "_sig" not in completed_set:
@@ -184,3 +184,10 @@ def get_dspy_source_code(module):
             completed_set.add(item)
 
     return "\n\n".join(header) + "\n\n" + base_code
+
+def is_hashable(item):
+    try:
+        hash(item)
+        return True
+    except TypeError:
+        return False
